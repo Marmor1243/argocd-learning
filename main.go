@@ -11,7 +11,7 @@ var (
 	httpRequestsTotal = prometheus.NewCounter(
 		prometheus.CounterOpts{
 			Name: "myapp_http_requests_total",
-			Help: "Total number of HTTP requests",
+			Help: "Total nubber of HTTP requests",
 		},
 	)
 )
