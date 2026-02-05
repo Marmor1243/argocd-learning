@@ -23,7 +23,7 @@ func init() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	httpRequestsTotal.Inc() // increment by 1
-	w.Write([]byte("Hello, Prometheus!"))
+	w.Write([]byte("Hello, GitOps and ArgoCD!"))
 }
 
 func main() {
