@@ -5,10 +5,11 @@ metadata:
   labels:
     app: go-server
 spec:
-  type: NodePort        # exposes service on each node's IP at a static port
+  type: NodePort
   selector:
-    app: go-server      # selects Pods created by your Deployment
+    app: go-server
   ports:
-    - port: 8080        # port the service exposes inside the cluster
-      targetPort: 8080  # port the container listens on
-      nodePort: 30002   # optional: specific port on the node; must be 30000-32767
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30002
+

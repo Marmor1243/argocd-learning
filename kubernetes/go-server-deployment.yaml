@@ -20,7 +20,9 @@ spec:
     spec:
       containers:
       - name: go-server
-        image: docker.io/yurii43/monitoring:latest
+        image: docker.io/marmor1243/monitoring:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
+      imagePullSecrets:
+      - name: regcred
