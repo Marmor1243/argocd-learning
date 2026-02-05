@@ -5,7 +5,7 @@ metadata:
   labels:
     app: go-server
 spec:
-  # replicas: 3
+  replicas: 3
   selector:
     matchLabels:
       app: go-server
