@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: go-server-deployment
+  labels:
+    app: go-server
+spec:
+  # replicas: 3
+  selector:
+    matchLabels:
+      app: go-server
+
+  # Pod Definition 
+  template:
+    metadata:
+      labels:
+        app: go-server
+        environment: development
+        tier: backend
+    spec:
+      containers:
+      - name: go-server
+        image: docker.io/yurii43/monitoring:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
