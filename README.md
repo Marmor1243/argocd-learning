@@ -1,25 +1,32 @@
-# Go Monitoring App
+# Go Monitoring App (Kubernetes Native)
 
-A simple Go web server dockerized with Docker Compose, including Prometheus and Grafana for monitoring.
+A simple Go web server deployed on Kubernetes, configured for GitOps with ArgoCD, and monitored using Prometheus and Grafana.
 
-## Usage
+## Architecture
 
-1. Ensure Docker and Docker Compose are installed.
+This project is fully Cloud Native:
+- **Go App**: Distributed as a Docker image and managed via K8s Deployment.
+- **Monitoring**: Prometheus (metrics scraping) and Grafana (visualization) running as independent pods.
+- **GitOps**: Managed by ArgoCD via the manifests in the `kubernetes/` directory.
 
-2. Run the application:
+## Usage (Kubernetes)
+
+1. **Deployment via ArgoCD**:
+   ArgoCD tracks the `kubernetes/` folder. Simply push changes to GitHub, and ArgoCD will sync the state.
+
+2. **Manual Deployment**:
    ```bash
-   docker-compose up --build
+   kubectl apply -f kubernetes/
    ```
-   kubectl port-forward svc/argocd-server -n argocd 8080:443   
 
-3. Access the services:
-   - App: http://localhost:3002
-   - Prometheus: http://localhost:9090
-   - Grafana: http://localhost:3000 (username: admin, password: admin)
-   - ArgoCD: http://localhost:8080 (username: admin, password: [PASSWORD])
-   - ArgoCD Password: kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+3. **Accessing Services**:
+   - **Go App**: `http://localhost:30002` (via NodePort)
+   - **Prometheus**: `http://localhost:30090` (via NodePort)
+   - **Grafana**: `http://localhost:30000` (via NodePort)
 
-## Troubleshooting
+   *Note: If using Minikube, run `minikube service [service-name]` to get the URL.*
 
-- If port 3002 is in use, change the port mapping in docker-compose.yml.
-- Ensure Docker daemon is running.
+## ArgoCD Configuration
+
+- **ArgoCD Server**: `kubectl port-forward svc/argocd-server -n argocd 8080:443`
+- **Initial Password**: `kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d`
