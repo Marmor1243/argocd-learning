@@ -1,5 +1,8 @@
+Switch:
+kubectl config current-context
 
-
+kubectl config use-context kind-argocd-test
+kubectl config use-context kind-kube-inspector
 
 Für kind-kube-inspector:
 
