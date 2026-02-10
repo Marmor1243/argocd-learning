@@ -3,6 +3,8 @@ kind: ConfigMap
 metadata:
   name: argocd-cm
   namespace: argocd-minimal
+  labels:
+    app.kubernetes.io/part-of: argocd
 data:
   url: "http://localhost:8081"
   application.instanceLabelKey: "argocd.argoproj.io/instance"
@@ -12,6 +14,8 @@ kind: ConfigMap
 metadata:
   name: argocd-rbac-cm
   namespace: argocd-minimal
+  labels:
+    app.kubernetes.io/part-of: argocd
 data:
   policy.default: role:readonly
   policy.csv: |

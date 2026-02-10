@@ -141,6 +141,9 @@ rules:
   - apiGroups: [""]
     resources: ["secrets", "configmaps", "events", "pods", "pods/log"]
     verbs: ["get", "list", "watch", "create", "patch", "update"]
+  - apiGroups: ["argoproj.io"]
+    resources: ["applications", "appprojects"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1 
 kind: RoleBinding
@@ -316,6 +319,11 @@ spec:
             - argocd-repo-server:8081
             - --redis
             - argocd-redis:6379
+          env:
+            - name: ARGOCD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
           resources:
             requests:
               cpu: 200m
@@ -364,10 +372,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-          volumeMounts:                           # "Festplatte" in den Container schieben
-            - name: argocd-cm
-              mountPath: /app/config/argocd-cm    # Pfad innerhalb des Containers
-              readOnly: true
           resources:
             requests:
               cpu: 100m
@@ -375,10 +379,6 @@ spec:
             limits:
               cpu: 1500m
               memory: 1Gi
-      volumes:                                    # Definition der Datenquelle
-        - name: argocd-cm
-          configMap:                              # Die Daten kommen aus dieser ConfigMap
-            name: argocd-cm
 ---
 apiVersion: v1                                    # Standard API für Netzwerk-Dienste
 kind: Service                                     # Erstellt eine feste Adresse für die Pods

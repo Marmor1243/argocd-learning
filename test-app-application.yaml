@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: simple-test-app
+  namespace: argocd-minimal
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Marmor1243/argocd-learning.git'
+    targetRevision: HEAD
+    path: test-app  # Neuer Ordner nur für Test
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
