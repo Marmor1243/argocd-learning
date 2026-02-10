@@ -32,15 +32,15 @@ spec:
     kind: AppProject
     shortNames:
       - appproj
-  versions:
+  versions:                                               # Versionen die dieser Objekttyp unterstützt (CRD)
     - name: v1alpha1
-      served: true
-      storage: true
+      served: true                                        # Bestimmt ob diese Version über die Kubernetes-API erreichbar sein soll
+      storage: true                                       # Legt fest, dass diese Version diejenige ist, in der die Daten in der Datenbank (etcd) gespeichert werden
       subresources:
-        status: {}
-      schema:
+        status: {}                                        # Aktiviert das Feld ".status", das separat vom ".spec" aktualisiert werden kann (Status einer App ändern, ohne die Erlaubnis spec zu ändern)
+      schema:                                             # Definiert die Struktur des CRD (Bauplan)
         openAPIV3Schema:
-          type: object
+          type: object                                    # Das Wurzel-Element des Objekts muss ein JSON/YAML-Objekt sein (keine Liste oder Text)
           x-kubernetes-preserve-unknown-fields: true
 ---
 # -----------------------------
@@ -74,7 +74,7 @@ spec:
 # ServiceAccounts
 # -----------------------------
 # Ein ServiceAccount ist wie ein "Benutzerkonto" oder "Personalausweis" für Programme
-# Damit kann sich ein Pod gegenüber der Kubernetes-API ausweisen.
+# Damit kann sich ein Pod gegenüber der Kubernetes-API ausweisen
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -131,7 +131,7 @@ subjects:
     name: argocd-application-controller
     namespace: argocd-minimal
 ---
-# Server & repo-server can live with namespaced RBAC (dev-minimal).
+# Server & repo-server can live with namespaced RBAC (dev-minimal)
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -250,7 +250,7 @@ spec:
       serviceAccountName: argocd-repo-server
       containers:
         - name: argocd-repo-server
-          # Pick a version you use in the company; keep pinned.
+          # Pick a version you use in the company; keep pinned
           image: quay.io/argoproj/argocd:v2.10.3
           imagePullPolicy: IfNotPresent
           args:
@@ -353,8 +353,8 @@ spec:
             - argocd-server
             - --redis
             - argocd-redis:6379
-            # For local/dev you can run insecure and port-forward.
-            # In production: use TLS / ingress and remove this.
+            # For local/dev you can run insecure and port-forward
+            # In production: use TLS / ingress and remove this
             - --insecure
           ports:
             - name: http
@@ -404,7 +404,7 @@ metadata:
   namespace: argocd-minimal
 type: Opaque
 data:
-  # This is a placeholder; in a real install, this would be generated.
+  # This is a placeholder; in a real install, this would be generated
   admin.password: ""
   admin.passwordMtime: ""
   server.secretkey: ""
