@@ -1,7 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1    # Version der Kustomize-Struktur
 kind: Kustomization                            # Sagt Kubernetes, dass es eine Steuerungsdatei ist
 
-namespace: argocd-minimal                      # Legt fest, dass alle Ressourcen in diesen Namespace kommen
+namespace: argocd                      # Legt fest, dass alle Ressourcen in diesen Namespace kommen
 
 resources:                                     # Liste der Ressourcen, die in diesem Namespace installiert werden
   - base.yaml                                  # Bindet Grund-Infrastuktur ein (Pods, Services, RBAC)

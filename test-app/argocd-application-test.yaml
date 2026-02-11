@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: go-monitoring-app-test
-  namespace: argocd-minimal  # Angepasst für den Test-Cluster
+  namespace: argocd  # Angepasst für den Test-Cluster
 spec:
   project: default
   source:
