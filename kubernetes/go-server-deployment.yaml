@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: go-server
-        image: docker.io/marmor1243/monitoring:latest
+        image: docker.io/marmor1243/monitoring:<digest>
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
