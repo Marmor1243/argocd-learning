@@ -12,7 +12,7 @@
 apiVersion: v1                                          # Standard API für Namespaces
 kind: Namespace                                         # Isolierter Bereich im Cluster
 metadata:                                               
-  name: argocd                                  # Name des neuen "Ordners" im Cluster
+  name: argocd-minimal                                  # Name des neuen "Ordners" im Cluster
   labels:                                               # zusätzliche Markierungen
     app.kubernetes.io/name: argocd                      # Hilft Tools, diese Ressource ArgoCD zuzuordnen
 ---
@@ -33,9 +33,9 @@ spec:
     shortNames:
       - appproj
   versions:                                               # Versionen die dieser Objekttyp unterstützt (CRD)
-    - name: v1alpha1
+    - name: v1alpha1                                      # Alpha-Version, nicht für Produktion empfohlen, aber wird von ArgoCD-Version 2.10.3 erwartet (Kompatibilität zwischen Controller und CRDs)
       served: true                                        # Bestimmt ob diese Version über die Kubernetes-API erreichbar sein soll
-      storage: true                                       # Legt fest, dass diese Version diejenige ist, in der die Daten in der Datenbank (etcd) gespeichert werden
+      storage: true                                       # definiert in welcher Version die Objekte intern in etcd gespeichert werden
       subresources:
         status: {}                                        # Aktiviert das Feld ".status", das separat vom ".spec" aktualisiert werden kann (Status einer App ändern, ohne die Erlaubnis spec zu ändern)
       schema:                                             # Definiert die Struktur des CRD (Bauplan)
@@ -60,7 +60,7 @@ spec:
     shortNames:
       - app 
   versions:
-    - name: v1alpha1
+    - name: v1alpha1                                    # Bewusst gewählt, weil wird von ArgoCD-Version 2.10.3 erwartet (Sicherstellung Kompatibilität zwischen Controller und CRDs)
       served: true
       storage: true
       subresources:
@@ -79,28 +79,28 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argocd-server
-  namespace: argocd
+  namespace: argocd-minimal
 ---
-apiVersion: v1
+apiVersion: v1                                          # Serv.Acc. gehören zu Core Group von Kubernetes, also Version v1 ohne präfix referenziert (existieren in Kern-API)
 kind: ServiceAccount
 metadata:
   name: argocd-repo-server
-  namespace: argocd
+  namespace: argocd-minimal
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argocd-application-controller
-  namespace: argocd
+  namespace: argocd-minimal
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: argocd-redis
-  namespace: argocd
+  namespace: argocd-minimal
 ---
 # -----------------------------
-# RBAC: Wer darf was?
+# RBAC: Wer darf was? (Authorizer-Modul im API-Server)
 # (Minimalistisches aber praktisches Set für Lernzwecke)
 # -----------------------------
 apiVersion: rbac.authorization.k8s.io/v1          # API für Rollen und Rechte
@@ -132,14 +132,14 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argocd-application-controller
-    namespace: argocd
+    namespace: argocd-minimal
 ---
 # Server & repo-server can live with namespaced RBAC (dev-minimal)
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: Role                                          # Die "Stellenbeschreibung": WAS darf man tun? (Namespaced)
 metadata:
   name: argocd-server
-  namespace: argocd
+  namespace: argocd-minimal
 rules:
   - apiGroups: [""]
     resources: ["secrets", "configmaps", "events", "pods", "pods/log"]
@@ -152,7 +152,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argocd-server
-  namespace: argocd
+  namespace: argocd-minimal
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -160,13 +160,13 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argocd-server
-    namespace: argocd
+    namespace: argocd-minimal
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: argocd-repo-server
-  namespace: argocd
+  namespace: argocd-minimal
 rules:
   - apiGroups: [""]
     resources: ["secrets", "configmaps"]
@@ -176,7 +176,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: argocd-repo-server
-  namespace: argocd
+  namespace: argocd-minimal
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -184,16 +184,16 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: argocd-repo-server
-    namespace: argocd
+    namespace: argocd-minimal
 ---
 # -----------------------------
 # Redis (minimal)
 # -----------------------------
-apiVersion: apps/v1                               # Standard API für Deployments
+apiVersion: apps/v1                               # Standard API für Deployments, stabile General Availability Version
 kind: Deployment                                  # Definiert ein Deployment, sagt Kubernetes "Lass dieses Programm laufen"
 metadata:
   name: argocd-redis                              # Name des Programms (Cache für ArgoCD)
-  namespace: argocd                       # Namespace, in dem das Deployment läuft
+  namespace: argocd-minimal                       # Namespace, in dem das Deployment läuft
   labels:
     app.kubernetes.io/name: argocd-redis       
 spec:                                             # wie solls laufen?
@@ -224,7 +224,7 @@ apiVersion: v1                                    # Standard API für Services
 kind: Service   
 metadata:
   name: argocd-redis
-  namespace: argocd
+  namespace: argocd-minimal
 spec:                                             
   ports:
     - name: redis
@@ -240,7 +240,7 @@ apiVersion: apps/v1
 kind: Deployment                                  
 metadata:
   name: argocd-repo-server
-  namespace: argocd
+  namespace: argocd-minimal
   labels:
     app.kubernetes.io/name: argocd-repo-server
 spec:
@@ -282,7 +282,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: argocd-repo-server
-  namespace: argocd
+  namespace: argocd-minimal
 spec:
   ports:
     - name: https
@@ -298,7 +298,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argocd-application-controller
-  namespace: argocd
+  namespace: argocd-minimal
   labels:
     app.kubernetes.io/name: argocd-application-controller
 spec:
@@ -342,7 +342,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: argocd-server
-  namespace: argocd
+  namespace: argocd-minimal
   labels:
     app.kubernetes.io/name: argocd-server
 spec:
@@ -387,7 +387,7 @@ apiVersion: v1                                    # Standard API für Netzwerk-D
 kind: Service                                     # Erstellt eine feste Adresse für die Pods
 metadata:
   name: argocd-server                             # Name der Adresse
-  namespace: argocd                       # Namespace, in dem die Adresse gilt
+  namespace: argocd-minimal                       # Namespace, in dem die Adresse gilt
 spec:
   type: ClusterIP                                 # Service-Typ, ClusterIP ist standard
   ports:                                          # Ports, die weitergeleitet werden
@@ -404,7 +404,7 @@ apiVersion: v1                                    # Standard API für Secrets
 kind: Secret                                      # Erstellt ein Secret
 metadata:
   name: argocd-secret
-  namespace: argocd
+  namespace: argocd-minimal
 type: Opaque
 data:
   # This is a placeholder; in a real install, this would be generated
