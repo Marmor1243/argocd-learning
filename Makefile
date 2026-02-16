@@ -12,7 +12,7 @@ CTX_TEST      ?= kind-argocd-test
 INSPECTOR_LOCAL_PORT ?= 8080
 TEST_LOCAL_PORT      ?= 8081
 
-# Service Ports (wie in deinem Walkthrough)
+# Service Ports
 INSPECTOR_REMOTE_PORT ?= 443
 TEST_REMOTE_PORT      ?= 80
 
@@ -33,10 +33,13 @@ help:
 	@echo "  make open-inspector  - URL ausgeben (+ Browser öffnen, falls xdg-open vorhanden)"
 	@echo "  make open-test       - URL ausgeben (+ Browser öffnen, falls xdg-open vorhanden)"
 	@echo "  make stop            - stoppt beide port-forwards"
+	@echo "  make up-ins          - Startet Inspector (Context + PF + Passwort + URL)"
+	@echo "  make up-test         - Startet Test-Cluster (Context + PF + Passwort + URL)"
+	@echo "  make down            - Stoppt alle ArgoCD Port-Forwards"
 	@echo ""
 	@echo "Hinweis:"
 	@echo "  Inspector URL: https://localhost:$(INSPECTOR_LOCAL_PORT)"
-	@echo "  Test URL:      http://localhost:$(TEST_LOCAL_PORT) (falls dein Service wirklich :80 ist)"
+	@echo "  Test URL:      http://localhost:$(TEST_LOCAL_PORT)"
 
 $(PID_DIR):
 	@mkdir -p $(PID_DIR)
@@ -169,3 +172,47 @@ down-test:
 	else \
 		echo "Test not running."; \
 	fi
+
+.PHONY: down
+down:
+	@echo "Stopping all ArgoCD port-forwards..."
+	@if [ -f "$(PF_PID_INS)" ]; then \
+		PID=$$(cat "$(PF_PID_INS)"); \
+		if kill -0 $$PID 2>/dev/null; then kill $$PID || true; fi; \
+		rm -f "$(PF_PID_INS)"; \
+		echo "  Inspector stopped."; \
+	else \
+		echo "  Inspector not running."; \
+	fi
+	@if [ -f "$(PF_PID_TEST)" ]; then \
+		PID=$$(cat "$(PF_PID_TEST)"); \
+		if kill -0 $$PID 2>/dev/null; then kill $$PID || true; fi; \
+		rm -f "$(PF_PID_TEST)"; \
+		echo "  Test stopped."; \
+	else \
+		echo "  Test not running."; \
+	fi
+	@echo "Done."
+
+
+# -------- Git --------
+
+.PHONY: git
+git:
+	@echo "Checking for changes..."
+	@if [ -z "$$(git status --porcelain)" ]; then \
+		echo "No changes detected. Nothing to commit."; \
+		exit 0; \
+	fi
+	@echo ""
+	@echo "Changes detected:"
+	@git status --short
+	@echo ""
+	@read -p "Enter commit message: " msg; \
+	if [ -z "$$msg" ]; then \
+		echo "Commit message cannot be empty. Aborting."; \
+		exit 1; \
+	fi; \
+	git add .; \
+	git commit -m "$$msg"; \
+	git push
