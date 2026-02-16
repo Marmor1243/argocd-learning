@@ -38,7 +38,7 @@ help:
 	@echo "  make down            - Stoppt alle ArgoCD Port-Forwards"
 	@echo "  make down-ins        - Stoppt Inspector Port-Forward"
 	@echo "  make down-test       - Stoppt Test Port-Forward"
-	@echo "  make git             - Committet Änderungen und pusht sie"
+	@echo "  make git             - Committet Änderungen und pusht"
 	@echo ""
 	@echo "Hinweis:"
 	@echo "  Inspector URL: https://localhost:$(INSPECTOR_LOCAL_PORT)"
